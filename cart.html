@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azkar Webshop - Varukorg</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background: #f4f4f9;
+      color: #333;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      background: #2c3e50;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #ecf0f1;
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #f39c12;
+    }
+    .cart-section {
+      max-width: 900px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    .cart-section h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    .cart-item h2 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+    .cart-item p {
+      font-size: 1.2rem;
+      color: #f39c12;
+    }
+    .cart-item button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      background: #e74c3c;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .cart-item button:hover {
+      background: #c0392b;
+    }
+    .cart-total {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      text-align: right;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .checkout button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #fff;
+      background: #27ae60;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 20px;
+    }
+    .checkout button:hover {
+      background: #1e8449;
+    }
+    .product-list {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .product {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 200px;
+    }
+    .product button {
+      margin-top: 10px;
+      background: #2980b9;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .product button:hover {
+      background: #3498db;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="Home.html">Hem</a>
+    <a href="products.html">Produkter</a>
+    <a href="about.html">Om oss</a>
+    <a href="#">Varukorg</a>
+  </nav>
+
+  <main>
+    <section class="cart-section">
+      <h1>Din Varukorg</h1>
+      <div id="cart-items"></div>
+      <div class="cart-total" id="cart-total"></div>
+      <div class="checkout">
+        <button onclick="proceedToCheckout()">Gå till betalning</button>
+      </div>
+    </section>
+
+    <section class="product-list">
+      <div class="product">
+        <h2>Produkt 1</h2>
+        <p>Pris: 150 kr</p>
+        <button onclick="addToCart('Produkt 1', 150)">Lägg till i varukorg</button>
+      </div>
+      <div class="product">
+        <h2>Produkt 2</h2>
+        <p>Pris: 250 kr</p>
+        <button onclick="addToCart('Produkt 2', 250)">Lägg till i varukorg</button>
+      </div>
+      <div class="product">
+        <h2>Produkt 3</h2>
+        <p>Pris: 100 kr</p>
+        <button onclick="addToCart('Produkt 3', 100)">Lägg till i varukorg</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function displayCart() {
+      const cartItemsDiv = document.getElementById('cart-items');
+      const cartTotalDiv = document.getElementById('cart-total');
+
+      if (cart.length === 0) {
+        cartItemsDiv.innerHTML = '<p>Din varukorg är tom.</p>';
+        cartTotalDiv.innerHTML = '';
+        return;
+      }
+
+      cartItemsDiv.innerHTML = '';
+      let total = 0;
+      cart.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('cart-item');
+        itemDiv.innerHTML = `
+          <div>
+            <h2>${item.name}</h2>
+            <p>${item.price} kr</p>
+          </div>
+          <button onclick="removeFromCart(${index})">Ta bort</button>
+        `;
+        cartItemsDiv.appendChild(itemDiv);
+        total += item.price;
+      });
+
+      cartTotalDiv.innerHTML = `<strong>Totalt: ${total} kr</strong>`;
+    }
+
+    function addToCart(name, price) {
+      const newItem = { name, price };
+      cart.push(newItem);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      displayCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      displayCart();
+    }
+
+    function proceedToCheckout() {
+      if (cart.length === 0) {
+        alert("Din varukorg är tom. Lägg till produkter för att kunna betala.");
+        return;
+      }
+      window.location.href = "checkout.html"; // Exempel på redirect till betalningssida
+    }
+
+    displayCart();
+  </script>
+</body>
+</html>
